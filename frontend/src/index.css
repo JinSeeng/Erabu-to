@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    /* Inga palette — aged washi + sumi-e ink */
+    --parchment: 242 234 225;
+    --parchment-warm: 234 224 210;
+    --parchment-aged: 214 199 178;
+    --ink: 20 18 16;
+    --ink-void: 8 7 6;
+    --vermilion: 185 28 28;
+    --blood-ink: 136 19 55;
+    --hanko: 220 38 38;
+    --moss: 45 58 46;
+    --forest-mist: 28 40 38;
+    --slate-indigo: 44 50 61;
+    --gold-leaf: 180 83 9;
+
+    --background: var(--parchment);
+    --foreground: var(--ink);
+}
+
+html,
+body,
+#root {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    background: rgb(var(--parchment));
+    color: rgb(var(--ink));
+    font-family: "Shippori Mincho", "Noto Serif JP", ui-serif, serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+@layer base {
+    :root {
+        --background: 32 32% 92%;
+        --foreground: 24 18% 8%;
+        --card: 32 32% 92%;
+        --card-foreground: 24 18% 8%;
+        --popover: 32 32% 92%;
+        --popover-foreground: 24 18% 8%;
+        --primary: 24 18% 8%;
+        --primary-foreground: 32 32% 92%;
+        --secondary: 30 20% 77%;
+        --secondary-foreground: 24 18% 8%;
+        --muted: 30 20% 77%;
+        --muted-foreground: 24 12% 27%;
+        --accent: 0 72% 42%;
+        --accent-foreground: 32 32% 92%;
+        --destructive: 348 76% 30%;
+        --destructive-foreground: 32 32% 92%;
+        --border: 30 20% 20%;
+        --input: 30 20% 20%;
+        --ring: 24 18% 8%;
+        --radius: 0.25rem;
+    }
+    * {
+        border-color: hsl(var(--border) / 0.3);
+    }
+}
+
+/* Washi paper grain */
+.washi {
+    background-color: rgb(var(--parchment));
+    background-image:
+        radial-gradient(
+            circle at 20% 30%,
+            rgba(120, 90, 60, 0.06) 0,
+            transparent 40%
+        ),
+        radial-gradient(
+            circle at 80% 70%,
+            rgba(60, 40, 20, 0.08) 0,
+            transparent 45%
+        ),
+        repeating-linear-gradient(
+            45deg,
+            rgba(90, 60, 30, 0.025) 0 2px,
+            transparent 2px 5px
+        );
+}
+
+.washi-dark {
+    background-color: rgb(var(--ink-void));
+    background-image:
+        radial-gradient(
+            circle at 30% 20%,
+            rgba(180, 130, 80, 0.05) 0,
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 70% 80%,
+            rgba(130, 40, 40, 0.06) 0,
+            transparent 45%
+        ),
+        repeating-linear-gradient(
+            45deg,
+            rgba(200, 180, 150, 0.02) 0 2px,
+            transparent 2px 5px
+        );
+}
+
+.ink-vignette::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 40%,
+        rgba(8, 7, 6, 0.55) 100%
+    );
+}
+
+.hanko-seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(var(--hanko));
+    color: rgb(var(--parchment));
+    font-family: "Yuji Syuku", "Shippori Mincho", serif;
+    padding: 0.5rem 0.75rem;
+    border-radius: 2px;
+    letter-spacing: 0.15em;
+    box-shadow:
+        inset 0 0 0 2px rgba(255, 220, 200, 0.25),
+        0 1px 0 rgba(0, 0, 0, 0.3);
+    transform: rotate(-3deg);
+}
+
+.font-display {
+    font-family: "Yuji Syuku", "Zen Old Mincho", "Shippori Mincho", serif;
+}
+.font-serif-jp {
+    font-family: "Shippori Mincho", "Noto Serif JP", serif;
+}
+.font-hand {
+    font-family: "Klee One", "Shippori Mincho", cursive;
+}
+
+/* Fog drift animation */
+@keyframes fog-drift {
+    0% {
+        transform: translateX(-10%) translateY(0);
+        opacity: 0.35;
+    }
+    50% {
+        opacity: 0.55;
+    }
+    100% {
+        transform: translateX(10%) translateY(-3%);
+        opacity: 0.3;
+    }
+}
+.fog-layer {
+    animation: fog-drift 22s ease-in-out infinite alternate;
+    filter: blur(28px);
+}
+
+/* Ink brush stroke */
+@keyframes ink-stroke {
+    from {
+        stroke-dashoffset: 1000;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+.ink-draw {
+    stroke-dasharray: 1000;
+    animation: ink-stroke 3s ease-out forwards;
+}
+
+/* Slow flicker for lanterns / distant figures */
+@keyframes lantern-flicker {
+    0%,
+    100% {
+        opacity: 0.9;
+    }
+    47% {
+        opacity: 0.85;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    53% {
+        opacity: 0.9;
+    }
+}
+.flicker {
+    animation: lantern-flicker 5s infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(42, 36, 30, 0.4);
+    border-radius: 2px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::selection {
+    background: rgba(185, 28, 28, 0.35);
+    color: rgb(var(--parchment));
+}
+
+/* Kanji vertical text helper */
+.tategaki {
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    letter-spacing: 0.4em;
+}
+
+/* Slow reveal for narrative text */
+@keyframes reveal {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.reveal {
+    animation: reveal 1.4s ease-out both;
+}

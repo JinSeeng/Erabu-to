@@ -1,0 +1,105 @@
+{
+  "project_title": "因果 (Inga) / 選ぶと、 (Erabu to...)",
+  "app_type": "interactive_narrative_web_game",
+  "theme": "traditional_japanese_folklore_horror_sumi_e",
+  "archetype": "ORGANIC & LUXURY HORROR (Japanese Parchment & Sumi-e Ink)",
+  "typography": {
+    "primary_serif": "Shippori Mincho, 'Noto Serif JP', serif",
+    "calligraphic_display": "'Yuji Syuku', 'Zen Old Mincho', serif",
+    "journal_handwriting": "'Kaito', 'Shippori Mincho', serif",
+    "font_imports": "https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;600;800&family=Yuji+Syuku&family=Zen+Old+Mincho:wght@400;700&display=swap",
+    "hierarchy": {
+      "title_h1": "text-4xl sm:text-5xl lg:text-6xl tracking-widest font-extrabold font-serif",
+      "kanji_hero": "text-6xl sm:text-7xl lg:text-8xl tracking-widest text-red-900 font-serif opacity-90",
+      "section_h2": "text-2xl sm:text-3xl lg:text-4xl tracking-wide font-bold font-serif",
+      "choice_h3": "text-xl sm:text-2xl font-semibold tracking-wider font-serif",
+      "body": "text-base sm:text-lg leading-relaxed font-serif text-amber-950/90 dark:text-amber-100/90",
+      "journal_entry": "text-sm sm:text-base leading-loose font-serif italic text-stone-800 dark:text-stone-300"
+    }
+  },
+  "colors": {
+    "background_parchment": "#f2eae1",
+    "background_parchment_dark": "#12100e",
+    "washi_light": "#eae0d2",
+    "washi_aged": "#d6c7b2",
+    "ink_black": "#141210",
+    "ink_deep_void": "#080706",
+    "vermilion_red": "#b91c1c",
+    "blood_ink": "#881337",
+    "hanko_seal_red": "#dc2626",
+    "moss_green": "#2d3a2e",
+    "forest_mist": "#1c2826",
+    "slate_indigo": "#2c323d",
+    "curse_purple": "#3b0764",
+    "border_ink": "#2a241e",
+    "accent_gold_leaf": "#b45309"
+  },
+  "visual_enhancers": {
+    "paper_grain_overlay": "repeating-linear-gradient opacity-10 background surface",
+    "border_style": "1px solid rgba(42, 36, 30, 0.4)",
+    "hanko_stamp_effect": "red seal with rough ink edges and kanji glyph",
+    "fog_animation": "subtle SVG drift / Framer Motion opacity pulse",
+    "emaki_scroll_frame": "wood end-caps, horizontal canvas unroll, gradual tint from parchment warm to desaturated dark ink horror"
+  },
+  "image_urls": {
+    "hero_scenes": [
+      {
+        "url": "https://images.unsplash.com/photo-1771893327514-842e33b8bf85?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwzfHxKYXBhbmVzZSUyMHNocmluZSUyMHRvcmlpJTIwZ2F0ZSUyMG1pc3R5JTIwZm9yZXN0JTIwZm9nfGVufDB8fHx8MTc4OTYzNDM1Mnww&ixlib=rb-4.1.0&q=85",
+        "category": "shrine_torii_fog",
+        "description": "Mystical Torii gate in a foggy Japanese forest at night"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1698618988744-737573cb6a7a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHwxfHxKYXBhbmVzZSUyMG1pc3R5JTIwYmFtYm9vJTIwZm9yZXN0JTIwZm9nJTIwZHVza3xlbnwwfHx8fDE3ODk2MzQzNTJ8MA&ixlib=rb-4.1.0&q=85",
+        "category": "bamboo_dusk",
+        "description": "Misty bamboo forest path at twilight"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1784323541318-2ce4f9393928?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzR8MHwxfHNlYXJjaHw3fHxKYXBhbmVzZSUyMHRyYWRpdGlvbmFsJTIwY291bnRyeXNpZGUlMjBydXJhbCUyMHBhdGglMjBmb2clMjBtb29kfGVufDB8fHx8MTc4OTYzNDM1Mnww&ixlib=rb-4.1.0&q=85",
+        "category": "rural_mist_path",
+        "description": "Winding dirt path through misty traditional rural countryside"
+      }
+    ],
+    "yokai_folklore_art": [
+      {
+        "name": "Kappa (河童)",
+        "lore": "Drowning spirit lurking near dark waters and ancient bridges",
+        "sketches": "Sumi-e style ink artwork of water ripples with glowing eyes"
+      },
+      {
+        "name": "Hanako / Shrine Maiden Ghost (花子 / 幽霊花嫁)",
+        "lore": "Vengeful ghost maiden bound to the abandoned mountain shrine",
+        "sketches": "Desaturated ink wash of a white kimono silhouette under blood moon"
+      },
+      {
+        "name": "Jorogumo (絡新婦)",
+        "lore": "Spider bride transforming peaceful forest huts into silk traps",
+        "sketches": "Tangled ink threads across old washi parchment"
+      }
+    ]
+  },
+  "component_structure": {
+    "title_screen": "Opening title screen with Japanese title (因果 / 選ぶと、), sound toggle, start/continue",
+    "narrative_viewport": "First person scene view with layered backgrounds, fog overlay, dynamic ambient lighting",
+    "choice_system": "Branching decision options styled as Japanese wooden tags or ink stamps",
+    "emaki_scroll": "Unrolling horizontal scroll (emaki) at bottom showing narrative progress (Peaceful -> Strange -> Unsettling -> Distorted -> Horrifying)",
+    "journal_modal": "Foldable notebook panel with clues, yokai entries, sumi-e sketches, symbol log",
+    "audio_engine": "Procedural Web Audio API soundscape with low drones, wind whispers, temple bells, heartbeats",
+    "gemini_banana_integration": "AI image art generator interface for custom scroll art expansion and scene variants",
+    "ending_gallery": "Multiple narrative endings screen with sumi-e seal unlocks"
+  },
+  "instructions_to_main_agent": [
+    "Include font link in index.html for 'Shippori Mincho' and 'Yuji Syuku'.",
+    "Use data-testid on all interactive buttons, choices, journal tabs, and scroll controls.",
+    "Ensure UI maintains washi parchment paper texture background rather than flat digital black or white.",
+    "Implement Web Audio API synth for procedural horror drones and wind noise.",
+    "Maintain LocalStorage persistence for game state and unlocked journal entries.",
+    "Integrate Gemini Nano Banana API trigger option for generating visual scroll variations."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Do NOT center-align main app text container globally.",
+    "Avoid generic blue gradients or default Vercel design aesthetics.",
+    "Use generous spacing p-6 to p-12 around containers.",
+    "Ensure every interactive element has a responsive hover and active state with explicit text colors.",
+    "Always provide data-testid attributes for testing."
+  ]
+}
