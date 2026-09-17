@@ -255,6 +255,140 @@ export const SCENES = {
       "The hut is patient. The forest is patient. And somewhere far away, on a road you almost took, a village lantern flickers once — for someone who did not come home.",
     ],
   },
+
+  // ---------------- SECOND ACT: VILLAGE RETURN ----------------
+  // Reached after a "safe" ending on run >= 2. Familiar earlier places have subtly
+  // changed based on prior choices/journal fragments the player carried across runs.
+  village_return: {
+    id: "village_return",
+    kanji: "帰った村",
+    romaji: "Kaetta mura — The Village You Returned To",
+    stage: "unsettling",
+    imagePrompt:
+      "a small Japanese village at dusk viewed from an approaching path, lanterns lit but no people visible, one house door standing open, a distant thin figure at the well, sumi-e ink wash horror, quiet dread",
+    narration: [
+      "The village opens before you again. The lanterns are lit, but no one calls your name.",
+      "The path is the path you have walked before. The houses are the houses you have known. And yet, something is not where you remember leaving it.",
+      "At the well, a thin figure fills a bucket with slow, patient care. You cannot tell if you knew them, once.",
+    ],
+    journal: {
+      id: "village_shift",
+      title: "Mono-no-ke (物の怪) — The Shift of Things",
+      body: "Some yokai do not appear. They arrive slowly, over years, in the way a familiar room becomes a little wrong. A vase moved. A shadow that stays after the lamp is blown out. The village itself, remembering something it should not.",
+    },
+    choices: [
+      { id: "well", text: "Approach the figure at the well", to: "ending_village_haunted", stamp: "井" },
+      { id: "home", text: "Walk quickly to your own door", to: "ending_village_home", stamp: "家" },
+    ],
+  },
+
+  ending_village_haunted: {
+    id: "ending_village_haunted",
+    kanji: "井戸の記憶",
+    romaji: "Ido no kioku — The Well Remembers",
+    stage: "horrifying",
+    isEnding: true,
+    tone: "cursed",
+    imagePrompt:
+      "close-up of a thin figure at an old stone well at dusk turning slightly to reveal it has no lower face, only long black hair and a wet white kimono, sumi-e ink wash horror, muted vermilion accents",
+    narration: [
+      "The figure turns. Its face is the face of everyone in the village you have ever passed without truly seeing.",
+      "'You came back,' the well says, in every voice at once. 'We were beginning to forget you.'",
+      "Somewhere else, on a road you did not take, a version of you is still walking home. Somewhere else, they are still safe.",
+    ],
+  },
+
+  ending_village_home: {
+    id: "ending_village_home",
+    kanji: "戸口の灯",
+    romaji: "Toguchi no tomoshibi — The Lantern at the Door",
+    stage: "unsettling",
+    isEnding: true,
+    tone: "spared",
+    imagePrompt:
+      "a warm paper lantern glowing beside an old wooden Japanese door at nightfall, a small pair of geta sandals waiting on the stone, a single moth circling, sumi-e ink wash with warm parchment tones",
+    narration: [
+      "You do not look at the well. You do not look at the door standing open.",
+      "Your own lantern burns low. Your own tea, still warm on the table, as if someone had been waiting.",
+      "You slide the door shut. Something on the other side breathes out — and then, at last, is quiet.",
+    ],
+  },
+
+  // ---------------- RARE: KUCHISAKE-ONNA ----------------
+  // Triggers when the player takes the main-road branch after having taken it
+  // at least once before across runs. She replaces the shrine_torii scene.
+  kuchisake_encounter: {
+    id: "kuchisake_encounter",
+    kanji: "口裂の女",
+    romaji: "Kuchisake-onna — The Slit-Mouthed Woman",
+    stage: "distorted",
+    imagePrompt:
+      "a woman in a beige surgical mask and long black hair standing very still on a dusk country road in Japan, holding a pair of scissors partially hidden behind her sleeve, muted amber light behind her, sumi-e ink wash horror, first person view",
+    narration: [
+      "You have walked this road before, and it has waited for you.",
+      "A woman stands at the crossroads where the shrine should have been. She wears a pale surgical mask. She smiles with her eyes.",
+      "'Am I pretty?' she asks softly. The scissors at her side catch the last of the light.",
+    ],
+    journal: {
+      id: "kuchisake",
+      title: "Kuchisake-Onna (口裂け女) — The Slit-Mouthed Woman",
+      body: "A vengeful spirit who stops travellers at dusk crossroads and asks a single question. To answer 'yes' is to see what is behind the mask. To answer 'no' is to be cut where she was cut. The wise are said to answer with a question of their own, or with a small distraction — a hard candy, a puzzle, a name.",
+    },
+    choices: [
+      { id: "yes", text: "'Yes. You are very beautiful.'", to: "ending_kuchisake_yes", stamp: "肯" },
+      { id: "no", text: "'No — not really.'", to: "ending_kuchisake_no", stamp: "否" },
+      { id: "trick", text: "Offer a hard candy from your pocket instead", to: "ending_kuchisake_candy", stamp: "飴" },
+    ],
+  },
+
+  ending_kuchisake_yes: {
+    id: "ending_kuchisake_yes",
+    kanji: "微笑の下",
+    romaji: "Bishō no shita — Beneath the Smile",
+    stage: "horrifying",
+    isEnding: true,
+    tone: "cursed",
+    imagePrompt:
+      "close-up of a woman lowering a surgical mask to reveal a wide slit mouth extending ear to ear, dark blood ink drips, muted vermilion background, sumi-e ink wash horror",
+    narration: [
+      "She lowers the mask slowly, savouring the courtesy.",
+      "'And now?' she whispers. Her mouth continues past where a mouth should end.",
+      "You never answer. You never had to.",
+    ],
+  },
+  ending_kuchisake_no: {
+    id: "ending_kuchisake_no",
+    kanji: "夕暮れの鋏",
+    romaji: "Yūgure no hasami — Twilight Shears",
+    stage: "horrifying",
+    isEnding: true,
+    tone: "cursed",
+    imagePrompt:
+      "a pair of long lacquered scissors laid neatly on a country road at dusk beside a fallen paper lantern, single crimson ribbon of ink stretching down the road, sumi-e ink wash horror, no figures",
+    narration: [
+      "She does not seem angry. She seems relieved.",
+      "'Then let me help,' she says gently, 'so that you may match me.'",
+      "The road grows longer behind you. You do not remember how you came to be lying on it.",
+    ],
+  },
+  ending_kuchisake_candy: {
+    id: "ending_kuchisake_candy",
+    kanji: "飴の礼",
+    romaji: "Ame no rei — The Candy's Courtesy",
+    stage: "unsettling",
+    isEnding: true,
+    tone: "spared",
+    imagePrompt:
+      "a small wrapped hard candy resting on a dusk country road, a pair of geta footprints turning away, faint amber glow of a distant village, sumi-e ink wash, quiet and warm",
+    narration: [
+      "You bow, hold out the candy, and ask her which sweet-shop she prefers.",
+      "For a long moment, she considers the paper wrapper as if it were a lantern.",
+      "'The one on the north side,' she murmurs. 'They used to know my name.' And then, politely, she steps aside — and you walk home under a sky that has, for tonight, forgotten to be cruel.",
+    ],
+  },
 };
+
+// Convenience: catalogue of all endings (for the title-screen gallery).
+export const ALL_ENDINGS = Object.values(SCENES).filter((s) => s.isEnding);
 
 export const START_SCENE = "start";

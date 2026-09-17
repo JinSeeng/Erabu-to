@@ -3,10 +3,13 @@ import { motion } from "framer-motion";
 import { Volume2, VolumeX, RotateCcw } from "lucide-react";
 import { audioEngine } from "@/game/useAudio";
 import { useGameStore } from "@/game/useGameStore";
+import { START_SCENE } from "@/game/storyData";
+import EndingGallery from "./EndingGallery";
 
 export default function TitleScreen({ onStart }) {
-  const { seenScenes, journal, hardReset, audioMuted, toggleAudio } = useGameStore();
+  const { seenScenes, journal, sceneId, ending, reset, hardReset, audioMuted, toggleAudio } = useGameStore();
   const [visible, setVisible] = useState(false);
+  const isMidRun = sceneId && sceneId !== START_SCENE && !ending;
   const hasProgress = seenScenes.length > 0 || journal.length > 0;
 
   useEffect(() => {
@@ -18,6 +21,8 @@ export default function TitleScreen({ onStart }) {
     audioEngine.init();
     audioEngine.setStage("peaceful", 1);
     audioEngine.fadeIn(0.55, 3);
+    // If we're not mid-run (finished an ending or fresh), start a fresh tale.
+    if (!isMidRun) reset();
     onStart();
   };
 
@@ -124,7 +129,7 @@ export default function TitleScreen({ onStart }) {
               className="group relative overflow-hidden border border-red-500/70 bg-red-900/20 px-8 py-3 font-serif-jp text-lg tracking-[0.3em] text-red-200 transition hover:bg-red-800/40 hover:text-amber-50"
             >
               <span className="relative z-10">
-                {hasProgress ? "続ける · Continue" : "始める · Begin"}
+                {isMidRun ? "続ける · Continue" : "始める · Begin"}
               </span>
               <span className="absolute inset-0 -translate-x-full bg-red-600/20 transition-transform duration-500 group-hover:translate-x-0" />
             </button>
@@ -147,6 +152,8 @@ export default function TitleScreen({ onStart }) {
               {journal.length} lore fragments · {seenScenes.length} places remembered
             </div>
           )}
+
+          <EndingGallery />
         </motion.div>
 
         <motion.div

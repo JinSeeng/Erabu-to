@@ -26,6 +26,11 @@ function defaultState() {
     stageProgress: 0, // 0..1 within scroll (0-1 across STAGES)
     seenScenes: [],
     audioMuted: false,
+    // Cross-run persistent metadata:
+    unlockedEndings: [], // ids of ending scenes reached across ALL runs
+    runCount: 0, // number of completed runs
+    mainRoadTaken: 0, // how many times main-road branch was chosen (across runs)
+    sawKuchisakeThisRun: false,
   };
 }
 
@@ -59,7 +64,27 @@ const actions = {
   },
   chooseOption(choice) {
     const currentScene = SCENES[state.sceneId];
-    const nextId = choice.to;
+    let nextId = choice.to;
+
+    // --- Dynamic re-routing based on cross-run history ---
+    // 1) Second Act: safe endings on run >= 2 divert through village_return
+    if (
+      (nextId === "ending_hakumei" || nextId === "ending_river_gratitude") &&
+      state.runCount >= 1 &&
+      !state.seenScenes.includes("village_return")
+    ) {
+      nextId = "village_return";
+    }
+    // 2) Kuchisake-Onna: main-road choice, having already taken it before,
+    // and not yet seen her this run
+    if (
+      choice.id === "main-road" &&
+      state.mainRoadTaken >= 1 &&
+      !state.sawKuchisakeThisRun
+    ) {
+      nextId = "kuchisake_encounter";
+    }
+
     const nextScene = SCENES[nextId];
     if (!nextScene) return;
 
@@ -77,6 +102,11 @@ const actions = {
     const stageIdx = STAGE_INDEX[stage] ?? 0;
     const stageProgress = stageIdx / (STAGES.length - 1);
 
+    const mainRoadTaken =
+      choice.id === "main-road" ? state.mainRoadTaken + 1 : state.mainRoadTaken;
+    const sawKuchisakeThisRun =
+      nextId === "kuchisake_encounter" ? true : state.sawKuchisakeThisRun;
+
     state = {
       ...state,
       sceneId: nextId,
@@ -86,20 +116,37 @@ const actions = {
       seenScenes: [...seen],
       stage,
       stageProgress,
+      mainRoadTaken,
+      sawKuchisakeThisRun,
     };
 
     if (nextScene.isEnding) {
-      state = { ...state, screen: "ending", ending: nextId };
+      const unlockedEndings = state.unlockedEndings.includes(nextId)
+        ? state.unlockedEndings
+        : [...state.unlockedEndings, nextId];
+      state = {
+        ...state,
+        screen: "ending",
+        ending: nextId,
+        unlockedEndings,
+        runCount: state.runCount + 1,
+      };
     }
     emit();
   },
   reset() {
-    const preservedJournal = state.journal; // keep discovered lore across runs
-    const preservedSeen = state.seenScenes;
+    // keep discovered lore, seen scenes, unlocked endings, run count across runs
+    const preserved = {
+      journal: state.journal,
+      seenScenes: state.seenScenes,
+      unlockedEndings: state.unlockedEndings,
+      runCount: state.runCount,
+      mainRoadTaken: state.mainRoadTaken,
+      audioMuted: state.audioMuted,
+    };
     state = {
       ...defaultState(),
-      journal: preservedJournal,
-      seenScenes: preservedSeen,
+      ...preserved,
       screen: "title",
     };
     emit();

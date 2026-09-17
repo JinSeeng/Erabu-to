@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useGameStore } from "@/game/useGameStore";
+import EntryPortrait from "./EntryPortrait";
 
 export default function Journal({ open, onClose }) {
   const { journal } = useGameStore();
@@ -70,24 +71,29 @@ export default function Journal({ open, onClose }) {
                       className="relative"
                       data-testid={`journal-entry-${entry.id}`}
                     >
-                      <div className="flex items-baseline gap-3">
-                        <span className="font-display text-xl text-red-800">
-                          ◆
-                        </span>
-                        <h3 className="font-display text-xl tracking-wider text-stone-900">
-                          {entry.title}
-                        </h3>
-                      </div>
-                      <p className="mt-3 font-hand text-base leading-loose text-stone-800">
-                        {entry.body}
-                      </p>
-                      <div className="mt-3 flex items-center gap-3">
-                        <span className="hanko-seal font-display text-xs">
-                          記
-                        </span>
-                        <span className="font-serif-jp text-xs italic text-stone-500">
-                          entry {i + 1}
-                        </span>
+                      <div className="flex gap-5">
+                        <EntryPortrait entryId={entry.id} />
+                        <div className="flex-1">
+                          <div className="flex items-baseline gap-3">
+                            <span className="font-display text-xl text-red-800">
+                              ◆
+                            </span>
+                            <h3 className="font-display text-xl tracking-wider text-stone-900">
+                              {entry.title}
+                            </h3>
+                          </div>
+                          <p className="mt-3 font-hand text-base leading-loose text-stone-800">
+                            {entry.body}
+                          </p>
+                          <div className="mt-3 flex items-center gap-3">
+                            <span className="hanko-seal font-display text-xs">
+                              記
+                            </span>
+                            <span className="font-serif-jp text-xs italic text-stone-500">
+                              entry {i + 1}
+                            </span>
+                          </div>
+                        </div>
                       </div>
                       <div className="mt-6 border-b border-dashed border-stone-500/30" />
                     </li>
