@@ -4,7 +4,7 @@ import { Volume2, VolumeX, RotateCcw } from "lucide-react";
 import { audioEngine } from "@/game/useAudio";
 import { useGameStore } from "@/game/useGameStore";
 import { START_SCENE } from "@/game/storyData";
-import EndingGallery from "./EndingGallery";
+import EndingTree from "./EndingTree";
 
 export default function TitleScreen({ onStart }) {
   const { seenScenes, journal, sceneId, ending, reset, hardReset, audioMuted, toggleAudio } = useGameStore();
@@ -105,14 +105,14 @@ export default function TitleScreen({ onStart }) {
           <div className="flex items-baseline gap-6">
             <h1
               data-testid="title-kanji"
-              className="font-display text-[5.5rem] leading-none tracking-widest text-red-500/90 drop-shadow-[0_2px_0_rgba(0,0,0,0.6)] sm:text-[7.5rem] lg:text-[9rem]"
+              className="font-display text-[4.5rem] leading-none tracking-widest text-red-500/90 drop-shadow-[0_2px_0_rgba(0,0,0,0.6)] sm:text-[6rem] lg:text-[7.5rem]"
             >
-              因果
+              選ぶと、
             </h1>
             <span className="hanko-seal font-display text-xl">印</span>
           </div>
-          <p className="mt-2 font-serif-jp text-lg tracking-[0.35em] text-amber-100/70 sm:text-xl">
-            Inga · &nbsp;選ぶと、 &nbsp;— &nbsp;<span className="italic text-amber-100/50">if you choose…</span>
+          <p className="mt-3 font-serif-jp text-lg tracking-[0.35em] text-amber-100/70 sm:text-xl">
+            Erabu to… &nbsp;— &nbsp;<span className="italic text-amber-100/50">if you choose…</span>
           </p>
           <p className="mt-10 max-w-xl font-serif-jp text-base leading-loose text-amber-100/80 sm:text-lg">
             A quiet road at dusk. A choice, then another. The world you know
@@ -153,7 +153,7 @@ export default function TitleScreen({ onStart }) {
             </div>
           )}
 
-          <EndingGallery />
+          <EndingTree />
         </motion.div>
 
         <motion.div

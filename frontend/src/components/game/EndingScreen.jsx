@@ -12,6 +12,7 @@ const TONE_LABEL = {
   spared: "赦 · Spared",
   drowned: "沈 · Drowned",
   trapped: "縛 · Bound",
+  revelation: "真 · Revelation",
 };
 
 export default function EndingScreen({ ending, onRestart }) {
@@ -22,6 +23,7 @@ export default function EndingScreen({ ending, onRestart }) {
   useEffect(() => {
     if (!scene) return;
     audioEngine.setStage(scene.stage || "horrifying", 4);
+    audioEngine.setAmbience(scene.isHidden ? "silence" : scene.tone === "spared" ? "wind" : "footsteps");
     (async () => {
       const url = await fetchSceneImage(scene.id, scene.imagePrompt);
       setImageUrl(url);

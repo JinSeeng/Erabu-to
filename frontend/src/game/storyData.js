@@ -25,6 +25,126 @@ export const SCENES = {
     choices: [
       { id: "main-road", text: "Continue on the main road", to: "shrine_torii", stamp: "主道" },
       { id: "mountain", text: "Take the mountain shortcut", to: "mountain_bridge", stamp: "山道" },
+      { id: "paddies", text: "Turn back toward the rice paddies", to: "paddies_wall", stamp: "田" },
+    ],
+  },
+
+  // ---------------- THIRD PATH: THE RICE PADDIES ----------------
+  paddies_wall: {
+    id: "paddies_wall",
+    kanji: "塗り壁",
+    romaji: "Nurikabe — The Painted Wall",
+    stage: "strange",
+    imagePrompt:
+      "a narrow path through flooded rice paddies at dusk in rural Japan blocked by an impossibly tall smooth mud wall that stretches beyond sight, still water reflecting the twilight, sumi-e ink wash horror",
+    narration: [
+      "You choose the low road, back toward the paddies. Water reflects the last purple of the sky.",
+      "The path ends against a wall. It was not here this morning. It has no top, no edge you can find.",
+      "Sometimes it seems to breathe.",
+    ],
+    journal: {
+      id: "nurikabe",
+      title: "Nurikabe (塗り壁) — The Painted Wall",
+      body: "A yokai that manifests as an invisible or unbending wall on lonely night roads. To force through is to be lost. To bow low and strike the base with a stick, folklore says, may cause it to lift.",
+    },
+    choices: [
+      { id: "push", text: "Press your palms against the wall and push", to: "ending_walled_in", stamp: "押" },
+      { id: "bow", text: "Bow low and tap the base three times", to: "farmhouse", stamp: "叩" },
+    ],
+  },
+
+  farmhouse: {
+    id: "farmhouse",
+    kanji: "廃屋",
+    romaji: "Haiya — The Abandoned Farmhouse",
+    stage: "unsettling",
+    imagePrompt:
+      "the interior of an abandoned Japanese thatched-roof farmhouse at night, a single sunken hearth glowing faintly, long tongue-shape shadow across the ceiling boards, no visible figures, sumi-e ink wash horror",
+    narration: [
+      "The wall lifts like a curtain. Beyond it: an old farmhouse you have never seen, though you know every path in this village.",
+      "The door is open. A hearth glows inside — recently fed. On the ceiling above, something long and pale is moving, as if licking.",
+      "There is nowhere else to go.",
+    ],
+    journal: {
+      id: "tenjoname",
+      title: "Tenjō-name (天井嘗) — The Ceiling Licker",
+      body: "A tall thin yokai who lives in the rafters of empty houses and licks the stains from the ceiling with a long, pale tongue. Harmless — unless you are a stain.",
+    },
+    choices: [
+      { id: "sit", text: "Sit at the hearth and warm your hands", to: "ending_hearth_guest", stamp: "座" },
+      { id: "search", text: "Search the house for its owner", to: "ending_licked_clean", stamp: "探" },
+    ],
+  },
+
+  ending_walled_in: {
+    id: "ending_walled_in",
+    kanji: "壁の裏",
+    romaji: "Kabe no ura — Behind the Wall",
+    stage: "horrifying",
+    isEnding: true,
+    tone: "trapped",
+    imagePrompt:
+      "a lone traveller pressed against an enormous impossible dark wall at night in rice paddies, sky above without stars, sumi-e ink wash horror, quiet dread",
+    narration: [
+      "You press. The wall presses back — patient, curious.",
+      "When you look behind you, the paddies are also a wall. So is the sky.",
+      "The road you knew becomes the memory of a road. You are still walking. You will always be walking.",
+    ],
+  },
+
+  ending_hearth_guest: {
+    id: "ending_hearth_guest",
+    kanji: "囲炉裏の客",
+    romaji: "Irori no kyaku — The Hearth's Guest",
+    stage: "distorted",
+    isEnding: true,
+    tone: "haunted",
+    imagePrompt:
+      "a lone figure seated cross-legged at a sunken hearth in an old Japanese farmhouse at night, thin pale limbs descending gently from the rafters to touch their hair, warm amber firelight, sumi-e ink wash horror",
+    narration: [
+      "You sit. The house sighs, as if it has waited for a guest for a very long time.",
+      "Something long and pale reaches down from the rafters and — carefully, kindly — grooms your hair.",
+      "In the morning, you will remember only warmth. Your family will notice how quiet you have become. How very, very clean.",
+    ],
+  },
+
+  ending_licked_clean: {
+    id: "ending_licked_clean",
+    kanji: "跡の無い部屋",
+    romaji: "Ato no nai heya — The Roomless of Marks",
+    stage: "horrifying",
+    isEnding: true,
+    tone: "cursed",
+    imagePrompt:
+      "an empty spotless tatami room in an old farmhouse at night, a single sandal left neatly at the doorway, no other trace of anyone, faint pale tongue-shaped shadow on ceiling, sumi-e ink wash",
+    narration: [
+      "You search from room to room. Every room is spotless. Every corner is cleaner than any corner should be.",
+      "Something on the ceiling notices the shape of you against its clean, clean wood.",
+      "In the morning, the house will still be there. You will not be. And the ceiling will be spotless.",
+    ],
+  },
+
+  // ---------------- ZASHIKI-WARASHI: kind child yokai ----------------
+  zashiki_warashi: {
+    id: "zashiki_warashi",
+    kanji: "座敷童",
+    romaji: "Zashiki-warashi — The Room Child",
+    stage: "strange",
+    imagePrompt:
+      "a small barefoot Japanese child yokai with a bob haircut in a red kimono standing in a moonlit clearing among bamboo, holding out a tiny folded paper crane, warm gentle sumi-e ink wash",
+    narration: [
+      "A small laugh, like a bell dropped on wood, comes from the bamboo.",
+      "A child in a red kimono stands very still on the path. She looks up at you with old eyes.",
+      "She holds out a folded paper crane. 'For the road,' she says. 'Keep it in your sleeve.'",
+    ],
+    journal: {
+      id: "zashiki",
+      title: "Zashiki-warashi (座敷童) — The Room Child",
+      body: "A rare, kind yokai who visits homes and travellers. Her paper cranes are said to protect against the binding of silk and the calling of masks. Households that treat her well prosper. Those who chase her away lose everything, quietly, over years.",
+    },
+    gift: "paper_crane",
+    choices: [
+      { id: "accept", text: "Bow, take the crane, thank her by name", to: "mountain_bridge", stamp: "受" },
     ],
   },
 
@@ -114,6 +234,7 @@ export const SCENES = {
     choices: [
       { id: "bow", text: "Bow, take up the cucumber, and offer it back to the water", to: "kappa_pact", stamp: "礼" },
       { id: "cross", text: "Cross the bridge quickly without looking down", to: "silent_grove", stamp: "急ぐ" },
+      { id: "laughter", text: "Follow the small bell of laughter from the bamboo", to: "zashiki_warashi", stamp: "笑", once: true, requires: "no_gift" },
     ],
   },
 
@@ -171,7 +292,8 @@ export const SCENES = {
       body: "A spider yokai who takes the form of a beautiful woman and weaves lonely huts in silent forests to catch travelers. Her hospitality is genuine — right until the strands tighten.",
     },
     choices: [
-      { id: "flee", text: "Do not sit. Break for the door.", to: "ending_binding_bride", stamp: "破る" },
+      { id: "flee", text: "Do not sit. Break for the door.", to: "ending_binding_bride", stamp: "破" },
+      { id: "crane", text: "Reach into your sleeve for the paper crane", to: "ending_paper_crane", stamp: "鶴", requires: "paper_crane" },
     ],
   },
 
@@ -253,6 +375,23 @@ export const SCENES = {
       "You run. The threshold blooms with silk as fine as breath and as strong as iron.",
       "She does not chase. She never has to.",
       "The hut is patient. The forest is patient. And somewhere far away, on a road you almost took, a village lantern flickers once — for someone who did not come home.",
+    ],
+  },
+
+  ending_paper_crane: {
+    id: "ending_paper_crane",
+    kanji: "紙鶴の恩",
+    romaji: "Kamitsuru no on — The Paper Crane's Kindness",
+    stage: "unsettling",
+    isEnding: true,
+    tone: "spared",
+    requiresGift: "paper_crane",
+    imagePrompt:
+      "a small folded red paper crane on an old tatami floor unfolding into a burst of white light, silk threads recoiling into the shadows, sumi-e ink wash with warm vermilion accent",
+    narration: [
+      "You reach into your sleeve. The crane is warm.",
+      "As silk descends, the paper unfolds itself in your hand — a small, bright, remembered kindness.",
+      "The hut lets you go. The forest lets you go. Somewhere, a child in a red kimono lifts her chin, and then, gently, is gone.",
     ],
   },
 
@@ -388,7 +527,43 @@ export const SCENES = {
   },
 };
 
-// Convenience: catalogue of all endings (for the title-screen gallery).
-export const ALL_ENDINGS = Object.values(SCENES).filter((s) => s.isEnding);
+export const ALL_ENDINGS = Object.values(SCENES).filter((s) => s.isEnding && !s.isHidden);
+
+// -------- HIDDEN TRUTH --------
+// Reached only after every non-hidden ending has been unlocked
+// AND every yokai journal entry has been discovered.
+export const HIDDEN_TRUTH = {
+  id: "ending_hidden_truth",
+  kanji: "貴方は誰",
+  romaji: "Anata wa dare — Who are you?",
+  stage: "horrifying",
+  isEnding: true,
+  isHidden: true,
+  tone: "revelation",
+  imagePrompt:
+    "a first-person view of a rural Japanese road at dusk with several small distant villagers frozen mid-step, their faces turned toward the viewer in quiet dread, their expressions the same as those of yokai, a single red hanko seal floating above the road, sumi-e ink wash horror",
+  narration: [
+    "You have walked every road. You have met every mask.",
+    "Only now, at the end, do you look down.",
+    "Your feet do not touch the ground. Your shadow has a shape you do not recognise.",
+    "The villagers hurry indoors. The bride at the shrine bows to you. The kappa hides beneath the bridge. The child does not appear.",
+    "You have been the story they told to keep their children safe. You have been the reason the lanterns are lit.",
+    "The scroll unrolls behind you, and the beautiful beginning was never a beginning. It was the last thing they saw.",
+  ],
+};
+
+SCENES[HIDDEN_TRUTH.id] = HIDDEN_TRUTH;
+
+export const ALL_YOKAI_JOURNAL_IDS = [
+  "paper_doll",
+  "hanako_bride",
+  "kappa",
+  "jorogumo",
+  "kuchisake",
+  "nurikabe",
+  "tenjoname",
+  "zashiki",
+  "village_shift",
+];
 
 export const START_SCENE = "start";

@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, Home, Volume2, VolumeX } from "lucide-react";
 import { useGameStore } from "@/game/useGameStore";
-import { audioEngine } from "@/game/useAudio";
+import { audioEngine, SCENE_AMBIENCE } from "@/game/useAudio";
 import { SCENES } from "@/game/storyData";
 import { fetchSceneImage } from "@/game/imageService";
 import SceneCanvas from "./SceneCanvas";
@@ -16,6 +16,7 @@ export default function GameView() {
     stage,
     stageProgress,
     journal,
+    gifts,
     chooseOption,
     goToScreen,
     audioMuted,
@@ -33,6 +34,7 @@ export default function GameView() {
     setImageUrl(null);
     setImageLoading(true);
     audioEngine.setStage(stage, 3.5);
+    audioEngine.setAmbience(SCENE_AMBIENCE[sceneId] || "wind");
     audioEngine.fadeIn(0.55, 2);
     if (stage === "unsettling" || stage === "distorted" || stage === "horrifying") {
       audioEngine.chime();
@@ -92,6 +94,15 @@ export default function GameView() {
           <Home size={14} /> 表紙
         </button>
         <div className="flex items-center gap-3">
+          {gifts.includes("paper_crane") && (
+            <span
+              data-testid="gift-paper-crane"
+              title="A paper crane, warm in your sleeve"
+              className="rounded-sm border border-red-400/40 bg-red-950/50 px-2 py-1.5 font-display text-xs tracking-widest text-red-200 backdrop-blur"
+            >
+              鶴
+            </span>
+          )}
           <button
             data-testid="journal-toggle-btn"
             onClick={() => setJournalOpen(true)}

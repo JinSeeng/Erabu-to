@@ -1,6 +1,11 @@
 import { motion } from "framer-motion";
+import { useGameStore } from "@/game/useGameStore";
 
 export default function ChoiceButton({ choice, onChoose }) {
+  const { gifts } = useGameStore();
+  // `no_gift` = visible only while the player owns no gifts (Zashiki appears once).
+  if (choice.requires && choice.requires !== "no_gift" && !gifts.includes(choice.requires)) return null;
+  if (choice.requires === "no_gift" && gifts.length > 0) return null;
   return (
     <motion.button
       data-testid={`choice-${choice.id}`}

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { SCENES, START_SCENE, STAGE_INDEX, STAGES } from "./storyData";
+import { SCENES, START_SCENE, STAGE_INDEX, STAGES, HIDDEN_TRUTH, ALL_ENDINGS, ALL_YOKAI_JOURNAL_IDS } from "./storyData";
 
 const KEY = "inga.save.v1";
 
@@ -31,6 +31,8 @@ function defaultState() {
     runCount: 0, // number of completed runs
     mainRoadTaken: 0, // how many times main-road branch was chosen (across runs)
     sawKuchisakeThisRun: false,
+    gifts: [], // items carried across runs, e.g. "paper_crane"
+    metZashiki: false, // one-time flag: has the child been met at least once
   };
 }
 
@@ -66,8 +68,15 @@ const actions = {
     const currentScene = SCENES[state.sceneId];
     let nextId = choice.to;
 
+    // Choices with `requires` need the player to have that gift; skip if not owned.
+    if (choice.requires && choice.requires !== "no_gift" && !state.gifts.includes(choice.requires)) {
+      return;
+    }
+    if (choice.requires === "no_gift" && state.gifts.length > 0) {
+      return;
+    }
+
     // --- Dynamic re-routing based on cross-run history ---
-    // 1) Second Act: safe endings on run >= 2 divert through village_return
     if (
       (nextId === "ending_hakumei" || nextId === "ending_river_gratitude") &&
       state.runCount >= 1 &&
@@ -75,8 +84,6 @@ const actions = {
     ) {
       nextId = "village_return";
     }
-    // 2) Kuchisake-Onna: main-road choice, having already taken it before,
-    // and not yet seen her this run
     if (
       choice.id === "main-road" &&
       state.mainRoadTaken >= 1 &&
@@ -107,6 +114,11 @@ const actions = {
     const sawKuchisakeThisRun =
       nextId === "kuchisake_encounter" ? true : state.sawKuchisakeThisRun;
 
+    // Gifts: any scene with a `gift` field bestows it when entered.
+    const gifts = new Set(state.gifts);
+    if (nextScene.gift) gifts.add(nextScene.gift);
+    const metZashiki = state.metZashiki || nextId === "zashiki_warashi";
+
     state = {
       ...state,
       sceneId: nextId,
@@ -118,6 +130,8 @@ const actions = {
       stageProgress,
       mainRoadTaken,
       sawKuchisakeThisRun,
+      gifts: [...gifts],
+      metZashiki,
     };
 
     if (nextScene.isEnding) {
@@ -134,8 +148,26 @@ const actions = {
     }
     emit();
   },
+
+  // Trigger the hidden truth ending — only callable when unlocked.
+  playHiddenTruth() {
+    if (!isHiddenTruthUnlocked(state)) return;
+    const unlockedEndings = state.unlockedEndings.includes(HIDDEN_TRUTH.id)
+      ? state.unlockedEndings
+      : [...state.unlockedEndings, HIDDEN_TRUTH.id];
+    state = {
+      ...state,
+      screen: "ending",
+      ending: HIDDEN_TRUTH.id,
+      sceneId: HIDDEN_TRUTH.id,
+      stage: HIDDEN_TRUTH.stage,
+      stageProgress: 1,
+      unlockedEndings,
+    };
+    emit();
+  },
   reset() {
-    // keep discovered lore, seen scenes, unlocked endings, run count across runs
+    // keep discovered lore, seen scenes, unlocked endings, run count and gifts across runs
     const preserved = {
       journal: state.journal,
       seenScenes: state.seenScenes,
@@ -143,6 +175,8 @@ const actions = {
       runCount: state.runCount,
       mainRoadTaken: state.mainRoadTaken,
       audioMuted: state.audioMuted,
+      gifts: state.gifts,
+      metZashiki: state.metZashiki,
     };
     state = {
       ...defaultState(),
@@ -163,7 +197,15 @@ const actions = {
 
 export function useGameStore() {
   const snap = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-  return { ...snap, ...actions };
+  return { ...snap, ...actions, hiddenTruthUnlocked: isHiddenTruthUnlocked(snap) };
+}
+
+export function isHiddenTruthUnlocked(s) {
+  const nonHiddenIds = ALL_ENDINGS.map((e) => e.id);
+  const allEndingsDone = nonHiddenIds.every((id) => s.unlockedEndings.includes(id));
+  const journalIds = new Set(s.journal.map((j) => j.id));
+  const allYokaiFound = ALL_YOKAI_JOURNAL_IDS.every((id) => journalIds.has(id));
+  return allEndingsDone && allYokaiFound;
 }
 
 export const gameStore = { getSnapshot, ...actions };

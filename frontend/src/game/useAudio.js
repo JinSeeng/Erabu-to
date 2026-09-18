@@ -103,6 +103,85 @@ class AudioEngine {
     this.lfoGain.gain.linearRampToValueAtTime(p.tremolo * 0.3, now + ramp);
   }
 
+  // Scene-specific ambience layer.
+  // Each ambience is a scheduled loop of short synthesised events: cicadas,
+  // water drips, wooden footsteps, wind, sudden silence, held breath.
+  setAmbience(kind) {
+    if (!this.initialized) return;
+    if (this._ambTimer) clearInterval(this._ambTimer);
+    this._ambience = kind;
+    if (kind === "silence") return; // deliberate absence
+    const spawn = () => this._spawnAmbienceEvent(kind);
+    const period = { cicadas: 260, water: 900, forest: 1600, footsteps: 700, wind: 2400, hearth: 1400, bell: 3200 }[kind] || 1400;
+    this._ambTimer = setInterval(spawn, period);
+  }
+
+  _spawnAmbienceEvent(kind) {
+    if (!this.ctx || this.muted) return;
+    const now = this.ctx.currentTime;
+    if (kind === "cicadas") {
+      // High chittering: filtered noise burst
+      const src = this.ctx.createBufferSource();
+      const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.6, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+      src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = 4800 + Math.random() * 2000; bp.Q.value = 8;
+      const g = this.ctx.createGain(); g.gain.value = 0.08;
+      src.connect(bp).connect(g).connect(this.master);
+      src.start(now); src.stop(now + 0.55);
+    } else if (kind === "water") {
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = 2200 + Math.random() * 400;
+      const g = this.ctx.createGain(); g.gain.value = 0;
+      osc.connect(g).connect(this.master);
+      g.gain.linearRampToValueAtTime(0.12, now + 0.005);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      osc.frequency.exponentialRampToValueAtTime(600, now + 0.18);
+      osc.start(now); osc.stop(now + 0.25);
+    } else if (kind === "footsteps") {
+      const src = this.ctx.createBufferSource();
+      const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.15, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (d.length * 0.15));
+      src.buffer = buf;
+      const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 300;
+      const g = this.ctx.createGain(); g.gain.value = 0.18;
+      src.connect(lp).connect(g).connect(this.master);
+      src.start(now);
+    } else if (kind === "wind" || kind === "forest") {
+      const src = this.ctx.createBufferSource();
+      const dur = 2.4;
+      const buf = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.sin((i / d.length) * Math.PI);
+      src.buffer = buf;
+      const bp = this.ctx.createBiquadFilter();
+      bp.type = "bandpass"; bp.frequency.value = kind === "wind" ? 350 : 550; bp.Q.value = 1.2;
+      const g = this.ctx.createGain(); g.gain.value = 0.05;
+      src.connect(bp).connect(g).connect(this.master);
+      src.start(now); src.stop(now + dur);
+    } else if (kind === "hearth") {
+      const osc = this.ctx.createOscillator();
+      osc.type = "sawtooth"; osc.frequency.value = 55 + Math.random() * 20;
+      const g = this.ctx.createGain(); g.gain.value = 0;
+      const lp = this.ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 220;
+      osc.connect(lp).connect(g).connect(this.master);
+      g.gain.linearRampToValueAtTime(0.04, now + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      osc.start(now); osc.stop(now + 1);
+    } else if (kind === "bell") {
+      const osc = this.ctx.createOscillator();
+      osc.type = "sine"; osc.frequency.value = 880 + Math.random() * 220;
+      const g = this.ctx.createGain(); g.gain.value = 0;
+      osc.connect(g).connect(this.master);
+      g.gain.linearRampToValueAtTime(0.08, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+      osc.start(now); osc.stop(now + 2);
+    }
+  }
+
   fadeIn(target = 0.7, seconds = 3) {
     if (!this.initialized || this.muted) return;
     const now = this.ctx.currentTime;
@@ -139,5 +218,22 @@ class AudioEngine {
     else this.fadeIn(0.7, 2);
   }
 }
+
+// Map scenes → ambience kind
+export const SCENE_AMBIENCE = {
+  start: "cicadas",
+  shrine_torii: "cicadas",
+  abandoned_shrine: "silence",
+  twilight_home: "footsteps",
+  mountain_bridge: "water",
+  kappa_pact: "water",
+  silent_grove: "silence",
+  silk_hut: "bell",
+  paddies_wall: "wind",
+  farmhouse: "hearth",
+  zashiki_warashi: "bell",
+  village_return: "footsteps",
+  kuchisake_encounter: "silence",
+};
 
 export const audioEngine = new AudioEngine();
