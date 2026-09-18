@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, HTTPException, BackgroundTasks
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -58,6 +58,29 @@ async def root():
     return {"message": "因果 — the thread of cause and effect."}
 
 
+async def _generate_and_cache(scene_id: str, prompt: str, style: str) -> dict:
+    style_text = SCROLL_STYLE if style == "scroll" else BASE_STYLE
+    chat = LlmChat(
+        api_key=EMERGENT_LLM_KEY,
+        session_id=f"inga-{scene_id}",
+        system_message="You are a master sumi-e ink artist creating atmospheric Japanese folklore horror illustrations.",
+    )
+    chat.with_model("gemini", "gemini-3.1-flash-image-preview").with_params(modalities=["image", "text"])
+    _text, images = await chat.send_message_multimodal_response(UserMessage(text=f"{prompt}. Style: {style_text}."))
+    if not images:
+        raise RuntimeError("No image returned")
+    img = images[0]
+    doc = {
+        "scene_id": scene_id,
+        "image_data": img["data"],
+        "mime_type": img.get("mime_type", "image/png"),
+        "prompt": prompt,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.scene_images.update_one({"scene_id": scene_id}, {"$set": doc}, upsert=True)
+    return doc
+
+
 @api_router.post("/scene/image", response_model=SceneImageResponse)
 async def generate_scene_image(req: SceneImageRequest):
     """Generate (or fetch cached) sumi-e horror scene art via Gemini Nano Banana."""
@@ -74,44 +97,64 @@ async def generate_scene_image(req: SceneImageRequest):
     if not EMERGENT_LLM_KEY:
         raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY not configured")
 
-    style = SCROLL_STYLE if req.style == "scroll" else BASE_STYLE
-    full_prompt = f"{req.prompt}. Style: {style}."
-
     try:
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"inga-{req.scene_id}",
-            system_message="You are a master sumi-e ink artist creating atmospheric Japanese folklore horror illustrations.",
-        )
-        chat.with_model("gemini", "gemini-3.1-flash-image-preview").with_params(
-            modalities=["image", "text"]
-        )
-        msg = UserMessage(text=full_prompt)
-        _text, images = await chat.send_message_multimodal_response(msg)
+        doc = await _generate_and_cache(req.scene_id, req.prompt, req.style)
     except Exception as e:
         logging.exception("Image generation failed")
         raise HTTPException(status_code=502, detail=f"Generation error: {type(e).__name__}")
 
-    if not images:
-        raise HTTPException(status_code=502, detail="No image returned")
-
-    img = images[0]
-    doc = {
-        "scene_id": req.scene_id,
-        "image_data": img["data"],
-        "mime_type": img.get("mime_type", "image/png"),
-        "prompt": req.prompt,
-        "created_at": datetime.now(timezone.utc).isoformat(),
-    }
-    await db.scene_images.update_one(
-        {"scene_id": req.scene_id}, {"$set": doc}, upsert=True
-    )
     return SceneImageResponse(
         scene_id=req.scene_id,
-        image_data=img["data"],
+        image_data=doc["image_data"],
         mime_type=doc["mime_type"],
         cached=False,
     )
+
+
+class PregenerateItem(BaseModel):
+    scene_id: str
+    prompt: str
+    style: str = "scene"
+
+
+class PregenerateRequest(BaseModel):
+    items: list[PregenerateItem]
+
+
+PREGEN = {"running": False, "total": 0, "done": 0, "skipped": 0, "failed": [], "last_error": None}
+
+
+async def _pregenerate(items: list[PregenerateItem]):
+    PREGEN.update(running=True, total=len(items), done=0, skipped=0, failed=[], last_error=None)
+    for it in items:
+        if await db.scene_images.find_one({"scene_id": it.scene_id}, {"_id": 1}):
+            PREGEN["skipped"] += 1
+            continue
+        try:
+            await _generate_and_cache(it.scene_id, it.prompt, it.style)
+            PREGEN["done"] += 1
+        except Exception as e:
+            logging.exception("Pregenerate failed for %s", it.scene_id)
+            PREGEN["failed"].append(it.scene_id)
+            PREGEN["last_error"] = str(e)[:300]
+            if "budget" in str(e).lower():
+                break
+    PREGEN["running"] = False
+
+
+@api_router.post("/scene/pregenerate")
+async def pregenerate(req: PregenerateRequest, background: BackgroundTasks):
+    """Generate every missing scene/scroll image in the background; poll /scene/pregenerate/status."""
+    if PREGEN["running"]:
+        raise HTTPException(status_code=409, detail="Pregeneration already running")
+    background.add_task(_pregenerate, req.items)
+    return {"queued": len(req.items)}
+
+
+@api_router.get("/scene/pregenerate/status")
+async def pregenerate_status():
+    cached = await db.scene_images.distinct("scene_id")
+    return {**PREGEN, "cached_ids": sorted(cached)}
 
 
 @api_router.get("/scene/image/{scene_id}")

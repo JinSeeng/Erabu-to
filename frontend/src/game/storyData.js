@@ -573,3 +573,29 @@ export function englishName(scene) {
   const parts = (scene.romaji || "").split("—");
   return (parts[1] || parts[0] || scene.kanji).trim();
 }
+
+const SCROLL_PALETTE = {
+  peaceful: "bright serene spring colours, soft golden light, gentle clouds",
+  strange: "muted autumn tones, thin mist creeping in, shadows a little too long",
+  unsettling: "dim twilight, heavy grey mist, indigo shadows, a faint red glow",
+  distorted: "dark wet ink, twisted trees, deep indigo and crimson, figures half-erased",
+  horrifying: "black ink bleeding across the paper, blood-red accents, ominous emptiness",
+};
+
+// Prompt for a scene's emakimono panel; safe endings return to brighter imagery.
+export function scrollPrompt(scene) {
+  const palette =
+    scene.isEnding && scene.tone === "spared"
+      ? "warm dawn light returning, gold leaf clouds and soft vermilion, peaceful and joyful"
+      : SCROLL_PALETTE[scene.stage] || SCROLL_PALETTE.peaceful;
+  return `${scene.imagePrompt}, ${palette}`;
+}
+
+// Every image the game can ask for: scene art + one scroll panel per scene.
+export function allImageJobs() {
+  const scenes = Object.values(SCENES).filter((s) => s.imagePrompt);
+  return [
+    ...scenes.map((s) => ({ scene_id: s.id, prompt: s.imagePrompt, style: "scene" })),
+    ...scenes.map((s) => ({ scene_id: `scroll_${s.id}`, prompt: scrollPrompt(s), style: "scroll" })),
+  ];
+}

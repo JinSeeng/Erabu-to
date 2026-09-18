@@ -1,15 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { SCENES } from "@/game/storyData";
+import { SCENES, scrollPrompt } from "@/game/storyData";
 import { fetchSceneImage } from "@/game/imageService";
-
-const STAGE_PALETTE = {
-  peaceful: "bright serene spring colours, soft golden light, gentle clouds",
-  strange: "muted autumn tones, thin mist creeping in, shadows a little too long",
-  unsettling: "dim twilight, heavy grey mist, indigo shadows, a faint red glow",
-  distorted: "dark wet ink, twisted trees, deep indigo and crimson, figures half-erased",
-  horrifying: "black ink bleeding across the paper, blood-red accents, ominous emptiness",
-};
 
 const STAGE_FILTER = {
   peaceful: "saturate(1.05) brightness(1.05)",
@@ -18,14 +10,6 @@ const STAGE_FILTER = {
   distorted: "saturate(0.5) brightness(0.7) contrast(1.15)",
   horrifying: "saturate(0.3) brightness(0.55) contrast(1.3)",
 };
-
-export function scrollPrompt(scene) {
-  const palette =
-    scene.isEnding && scene.tone === "spared"
-      ? "warm dawn light returning, gold leaf clouds and soft vermilion, peaceful and joyful"
-      : STAGE_PALETTE[scene.stage] || STAGE_PALETTE.peaceful;
-  return `${scene.imagePrompt}, ${palette}`;
-}
 
 // One painted panel of the emaki for a visited scene. Falls back to ink SVG if art is unavailable.
 export default function EmakiPanel({ sceneId, vertical, large = false }) {
