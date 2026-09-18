@@ -567,3 +567,9 @@ export const ALL_YOKAI_JOURNAL_IDS = [
 ];
 
 export const START_SCENE = "start";
+
+// "Yūgure no michi — The Dusk Road" → "The Dusk Road"
+export function englishName(scene) {
+  const parts = (scene.romaji || "").split("—");
+  return (parts[1] || parts[0] || scene.kanji).trim();
+}

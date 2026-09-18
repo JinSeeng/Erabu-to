@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, Home, Volume2, VolumeX } from "lucide-react";
+import { BookOpen, Home, Volume2, VolumeX, Eye, EyeOff } from "lucide-react";
 import { useGameStore } from "@/game/useGameStore";
 import { audioEngine, SCENE_AMBIENCE } from "@/game/useAudio";
 import { SCENES } from "@/game/storyData";
@@ -14,7 +14,6 @@ export default function GameView() {
   const {
     sceneId,
     stage,
-    stageProgress,
     journal,
     gifts,
     chooseOption,
@@ -26,6 +25,7 @@ export default function GameView() {
   const [imageUrl, setImageUrl] = useState(null);
   const [imageLoading, setImageLoading] = useState(true);
   const [journalOpen, setJournalOpen] = useState(false);
+  const [uiHidden, setUiHidden] = useState(false);
   const [narrationIndex, setNarrationIndex] = useState(0);
 
   // Whenever the scene changes: fade audio to stage, fetch art, reset narration
@@ -69,6 +69,11 @@ export default function GameView() {
     [scene, narrationIndex]
   );
   const allShown = narrationIndex >= (scene?.narration?.length ?? 0) - 1;
+  const visibleChoices = (scene?.choices || []).filter(
+    (c) => !(c.requires && c.requires !== "no_gift" && !gifts.includes(c.requires)) && !(c.requires === "no_gift" && gifts.length > 0)
+  );
+  const choiceCols =
+    visibleChoices.length >= 3 ? "sm:grid-cols-3" : visibleChoices.length === 2 ? "sm:grid-cols-2" : "sm:grid-cols-1 sm:max-w-md";
 
   const handleMute = () => {
     toggleAudio();
@@ -114,6 +119,14 @@ export default function GameView() {
             </span>
           </button>
           <button
+            data-testid="hide-ui-btn"
+            onClick={() => setUiHidden((h) => !h)}
+            aria-label={uiHidden ? "Show the story" : "Admire the painting"}
+            className="rounded-sm border border-amber-100/20 bg-black/40 p-2 text-amber-100/70 backdrop-blur transition hover:border-red-400/60 hover:text-red-200"
+          >
+            {uiHidden ? <Eye size={16} /> : <EyeOff size={16} />}
+          </button>
+          <button
             data-testid="audio-toggle-game"
             onClick={handleMute}
             className="rounded-sm border border-amber-100/20 bg-black/40 p-2 text-amber-100/70 backdrop-blur transition hover:border-red-400/60 hover:text-red-200"
@@ -124,13 +137,13 @@ export default function GameView() {
       </div>
 
       {/* Scene title */}
-      <div className="pointer-events-none absolute left-8 top-20 z-20 sm:left-14">
+      <div className={`pointer-events-none absolute left-8 top-20 z-20 transition-opacity duration-700 sm:left-14 ${uiHidden ? "opacity-0" : ""}`}>
         <motion.h2
           key={scene.id + "-t"}
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.4 }}
-          className="font-display text-3xl tracking-widest text-red-300/90 drop-shadow sm:text-4xl"
+          className="font-display text-2xl tracking-widest text-red-300/90 drop-shadow sm:text-3xl"
           data-testid="scene-kanji"
         >
           {scene.kanji}
@@ -140,17 +153,26 @@ export default function GameView() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.6 }}
           transition={{ duration: 1.6, delay: 0.6 }}
-          className="mt-1 font-serif-jp text-xs italic tracking-[0.3em] text-amber-100/70 sm:text-sm"
+          className="mt-1 font-serif-jp text-xs italic tracking-[0.3em] text-amber-100/70"
         >
           {scene.romaji}
         </motion.p>
       </div>
 
+      {/* Vertical emaki on wide screens */}
+      <div className={`hidden transition-opacity duration-700 lg:block ${uiHidden ? "pointer-events-none opacity-0" : ""}`}>
+        <EmakiScroll orientation="vertical" stage={stage} />
+      </div>
+
       {/* Narration + choices panel */}
-      <div className="absolute inset-x-0 bottom-0 z-20 flex flex-col">
-        <div className="mx-auto w-full max-w-4xl px-6 pb-2 pt-8 sm:px-10">
-          <div className="rounded-sm border border-amber-100/15 bg-black/55 p-5 backdrop-blur-md sm:p-7">
-            <div className="space-y-3" data-testid="narration">
+      <div
+        className={`absolute inset-x-0 bottom-0 z-20 flex flex-col transition-opacity duration-700 lg:pr-24 xl:pr-28 ${
+          uiHidden ? "pointer-events-none opacity-0" : ""
+        }`}
+      >
+        <div className="mx-auto w-full max-w-3xl px-4 pb-2 pt-6 sm:px-8">
+          <div className="rounded-sm border border-amber-100/15 bg-black/50 p-4 backdrop-blur-md sm:p-5" data-testid="story-panel">
+            <div className="space-y-2" data-testid="narration">
               <AnimatePresence initial={false}>
                 {shownLines.map((line, i) => (
                   <motion.p
@@ -158,7 +180,7 @@ export default function GameView() {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1.2 }}
-                    className="font-serif-jp text-base leading-loose text-amber-100/90 sm:text-lg"
+                    className="font-serif-jp text-sm leading-relaxed text-amber-100/90 sm:text-base sm:leading-loose"
                   >
                     {line}
                   </motion.p>
@@ -167,21 +189,15 @@ export default function GameView() {
             </div>
 
             {scene.isEnding ? null : (
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className={`mt-4 grid gap-2 ${choiceCols}`} data-testid="choices" data-count={visibleChoices.length}>
                 {allShown &&
-                  scene.choices?.map((c) => (
-                    <ChoiceButton
-                      key={c.id}
-                      choice={c}
-                      onChoose={() => chooseOption(c)}
-                    />
+                  visibleChoices.map((c) => (
+                    <ChoiceButton key={c.id} choice={c} onChoose={() => chooseOption(c)} compact={visibleChoices.length >= 3} />
                   ))}
                 {!allShown && scene.choices?.length ? (
                   <button
                     data-testid="skip-narration"
-                    onClick={() =>
-                      setNarrationIndex(scene.narration.length - 1)
-                    }
+                    onClick={() => setNarrationIndex(scene.narration.length - 1)}
                     className="col-span-full text-left font-serif-jp text-xs italic tracking-widest text-amber-100/40 hover:text-amber-100/70"
                   >
                     ▽ ink still drying — tap to hasten
@@ -191,8 +207,20 @@ export default function GameView() {
             )}
           </div>
         </div>
-        <EmakiScroll stage={stage} progress={stageProgress} />
+        <div className="lg:hidden">
+          <EmakiScroll orientation="horizontal" stage={stage} />
+        </div>
       </div>
+
+      {uiHidden && (
+        <button
+          data-testid="show-ui-btn"
+          onClick={() => setUiHidden(false)}
+          className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2 rounded-sm border border-amber-100/20 bg-black/40 px-4 py-2 font-serif-jp text-xs tracking-[0.3em] text-amber-100/60 backdrop-blur transition hover:text-amber-50"
+        >
+          ▽ return to the tale
+        </button>
+      )}
 
       <Journal open={journalOpen} onClose={() => setJournalOpen(false)} />
     </div>

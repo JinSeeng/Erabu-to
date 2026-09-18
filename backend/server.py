@@ -28,6 +28,7 @@ class SceneImageRequest(BaseModel):
     scene_id: str
     prompt: str
     force: bool = False
+    style: str = "scene"  # scene | scroll
 
 
 class SceneImageResponse(BaseModel):
@@ -42,6 +43,13 @@ BASE_STYLE = (
     "muted indigo and vermilion accents, subtle mist, cinematic mood, "
     "first-person composition, atmospheric horror, anime-inspired but restrained, "
     "no visible text, no captions, no watermarks, dark folkloric tone"
+)
+
+SCROLL_STYLE = (
+    "one continuous panel of a traditional Japanese emakimono handscroll in yamato-e style, "
+    "sumi ink with mineral pigments on aged washi, gold leaf cloud bands, richly detailed "
+    "continuous landscape seen from slightly above, wide horizontal composition, "
+    "no text, no captions, no borders, no watermarks"
 )
 
 
@@ -66,7 +74,8 @@ async def generate_scene_image(req: SceneImageRequest):
     if not EMERGENT_LLM_KEY:
         raise HTTPException(status_code=500, detail="EMERGENT_LLM_KEY not configured")
 
-    full_prompt = f"{req.prompt}. Style: {BASE_STYLE}."
+    style = SCROLL_STYLE if req.style == "scroll" else BASE_STYLE
+    full_prompt = f"{req.prompt}. Style: {style}."
 
     try:
         chat = LlmChat(

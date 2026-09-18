@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Volume2, VolumeX, RotateCcw } from "lucide-react";
+import { Volume2, VolumeX, RotateCcw, BookOpen } from "lucide-react";
 import { audioEngine } from "@/game/useAudio";
 import { useGameStore } from "@/game/useGameStore";
 import { START_SCENE } from "@/game/storyData";
-import EndingTree from "./EndingTree";
+import EndingGallery from "./EndingGallery";
+import Journal from "./Journal";
 
 export default function TitleScreen({ onStart }) {
   const { seenScenes, journal, sceneId, ending, reset, hardReset, audioMuted, toggleAudio } = useGameStore();
   const [visible, setVisible] = useState(false);
+  const [journalOpen, setJournalOpen] = useState(false);
   const isMidRun = sceneId && sceneId !== START_SCENE && !ending;
   const hasProgress = seenScenes.length > 0 || journal.length > 0;
 
@@ -102,17 +104,14 @@ export default function TitleScreen({ onStart }) {
           transition={{ duration: 2.2, delay: 0.4 }}
           className="my-auto max-w-3xl"
         >
-          <div className="flex items-baseline gap-6">
-            <h1
-              data-testid="title-kanji"
-              className="font-display text-[4.5rem] leading-none tracking-widest text-red-500/90 drop-shadow-[0_2px_0_rgba(0,0,0,0.6)] sm:text-[6rem] lg:text-[7.5rem]"
-            >
-              選ぶと、
-            </h1>
-            <span className="hanko-seal font-display text-xl">印</span>
-          </div>
-          <p className="mt-3 font-serif-jp text-lg tracking-[0.35em] text-amber-100/70 sm:text-xl">
-            Erabu to… &nbsp;— &nbsp;<span className="italic text-amber-100/50">if you choose…</span>
+          <h1
+            data-testid="title-kanji"
+            className="font-display text-[4.5rem] leading-none tracking-widest text-red-500/90 drop-shadow-[0_2px_0_rgba(0,0,0,0.6)] sm:text-[6rem] lg:text-[7.5rem]"
+          >
+            選ぶと、
+          </h1>
+          <p data-testid="title-subtitle" className="mt-3 font-serif-jp text-lg italic tracking-[0.35em] text-amber-100/60 sm:text-xl">
+            if you choose…
           </p>
           <p className="mt-10 max-w-xl font-serif-jp text-base leading-loose text-amber-100/80 sm:text-lg">
             A quiet road at dusk. A choice, then another. The world you know
@@ -145,6 +144,16 @@ export default function TitleScreen({ onStart }) {
                 新しい話 · New Tale
               </button>
             )}
+            {hasProgress && (
+              <button
+                data-testid="title-journal-btn"
+                onClick={() => setJournalOpen(true)}
+                className="flex items-center gap-2 border border-amber-100/30 px-6 py-3 font-serif-jp text-sm tracking-[0.25em] text-amber-100/70 transition hover:border-amber-100/70 hover:text-amber-50"
+              >
+                <BookOpen size={14} /> 手帖 · Journal
+                <span className="rounded-full bg-red-700/70 px-1.5 text-[10px] text-amber-50">{journal.length}</span>
+              </button>
+            )}
           </div>
 
           {hasProgress && (
@@ -153,7 +162,7 @@ export default function TitleScreen({ onStart }) {
             </div>
           )}
 
-          <EndingTree />
+          <EndingGallery />
         </motion.div>
 
         <motion.div
@@ -167,6 +176,7 @@ export default function TitleScreen({ onStart }) {
           unread.
         </motion.div>
       </div>
+      <Journal open={journalOpen} onClose={() => setJournalOpen(false)} />
     </div>
   );
 }

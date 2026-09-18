@@ -5,6 +5,7 @@ import { SCENES } from "@/game/storyData";
 import { fetchSceneImage } from "@/game/imageService";
 import { audioEngine } from "@/game/useAudio";
 import { useGameStore } from "@/game/useGameStore";
+import EmakiScroll from "./EmakiScroll";
 
 const TONE_LABEL = {
   cursed: "呪 · Cursed",
@@ -53,7 +54,7 @@ export default function EndingScreen({ ending, onRestart }) {
         <div className="h-full w-full bg-gradient-to-br from-red-950/30 via-transparent to-black/50" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-8 py-16 sm:px-12">
+      <div className="relative z-10 mx-auto flex min-h-[80vh] max-w-3xl flex-col justify-center px-8 py-16 sm:px-12">
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -140,6 +141,14 @@ export default function EndingScreen({ ending, onRestart }) {
           Somewhere on the road you did not take, the story is still walking.
         </motion.p>
       </div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 2, delay: 2 }}
+        className="relative z-10 pb-4"
+      >
+        <EmakiScroll orientation="horizontal" stage={scene.stage} />
+      </motion.div>
     </div>
   );
 }

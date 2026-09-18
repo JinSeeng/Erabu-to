@@ -29,8 +29,8 @@ function defaultState() {
     // Cross-run persistent metadata:
     unlockedEndings: [], // ids of ending scenes reached across ALL runs
     runCount: 0, // number of completed runs
-    mainRoadTaken: 0, // how many times main-road branch was chosen (across runs)
     sawKuchisakeThisRun: false,
+    kuchisakeLastRun: false, // she never appears two runs in a row
     gifts: [], // items carried across runs, e.g. "paper_crane"
     metZashiki: false, // one-time flag: has the child been met at least once
   };
@@ -84,10 +84,18 @@ const actions = {
     ) {
       nextId = "village_return";
     }
+    // Kuchisake-onna: rare (25%) on the main road, never on the first run, never two
+    // runs in a row, and only once the shrine path's own endings have been found.
+    const shrineDone = ["ending_brides_call", "ending_hakumei"].every((id) =>
+      state.unlockedEndings.includes(id)
+    );
     if (
       choice.id === "main-road" &&
-      state.mainRoadTaken >= 1 &&
-      !state.sawKuchisakeThisRun
+      state.runCount >= 1 &&
+      shrineDone &&
+      !state.kuchisakeLastRun &&
+      !state.sawKuchisakeThisRun &&
+      Math.random() < 0.25
     ) {
       nextId = "kuchisake_encounter";
     }
@@ -109,8 +117,6 @@ const actions = {
     const stageIdx = STAGE_INDEX[stage] ?? 0;
     const stageProgress = stageIdx / (STAGES.length - 1);
 
-    const mainRoadTaken =
-      choice.id === "main-road" ? state.mainRoadTaken + 1 : state.mainRoadTaken;
     const sawKuchisakeThisRun =
       nextId === "kuchisake_encounter" ? true : state.sawKuchisakeThisRun;
 
@@ -128,7 +134,6 @@ const actions = {
       seenScenes: [...seen],
       stage,
       stageProgress,
-      mainRoadTaken,
       sawKuchisakeThisRun,
       gifts: [...gifts],
       metZashiki,
@@ -173,7 +178,7 @@ const actions = {
       seenScenes: state.seenScenes,
       unlockedEndings: state.unlockedEndings,
       runCount: state.runCount,
-      mainRoadTaken: state.mainRoadTaken,
+      kuchisakeLastRun: state.sawKuchisakeThisRun,
       audioMuted: state.audioMuted,
       gifts: state.gifts,
       metZashiki: state.metZashiki,

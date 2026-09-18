@@ -5,7 +5,7 @@ const API = `${BACKEND_URL}/api`;
 
 const memoryCache = new Map(); // scene_id -> dataUrl
 
-export async function fetchSceneImage(sceneId, prompt) {
+export async function fetchSceneImage(sceneId, prompt, style = "scene") {
   if (memoryCache.has(sceneId)) return memoryCache.get(sceneId);
   try {
     const cached = await axios.get(`${API}/scene/image/${sceneId}`);
@@ -16,7 +16,7 @@ export async function fetchSceneImage(sceneId, prompt) {
     // not cached yet — generate
   }
   try {
-    const res = await axios.post(`${API}/scene/image`, { scene_id: sceneId, prompt });
+    const res = await axios.post(`${API}/scene/image`, { scene_id: sceneId, prompt, style });
     const url = toDataUrl(res.data);
     memoryCache.set(sceneId, url);
     return url;
