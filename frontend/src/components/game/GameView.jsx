@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, Home, Volume2, VolumeX, Eye, EyeOff } from "lucide-react";
 import { useGameStore } from "@/game/useGameStore";
 import { audioEngine, SCENE_AMBIENCE } from "@/game/useAudio";
-import { SCENES } from "@/game/storyData";
+import { SCENES, artFallbacks } from "@/game/storyData";
 import { fetchSceneImage } from "@/game/imageService";
 import SceneCanvas from "./SceneCanvas";
 import EmakiScroll from "./EmakiScroll";
@@ -45,7 +45,7 @@ export default function GameView() {
         setImageLoading(false);
         return;
       }
-      const url = await fetchSceneImage(scene.id, scene.imagePrompt);
+      const url = await fetchSceneImage(scene.id, scene.imagePrompt, "scene", artFallbacks(scene.id));
       if (!cancelled) {
         setImageUrl(url);
         setImageLoading(false);

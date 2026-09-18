@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { SCENES, scrollPrompt } from "@/game/storyData";
+import { SCENES, scrollPrompt, scrollFallbacks } from "@/game/storyData";
 import { fetchSceneImage } from "@/game/imageService";
 
 const STAGE_FILTER = {
@@ -19,7 +19,7 @@ export default function EmakiPanel({ sceneId, vertical, large = false }) {
   useEffect(() => {
     let cancelled = false;
     if (!scene?.imagePrompt) return;
-    fetchSceneImage(`scroll_${scene.id}`, scrollPrompt(scene), "scroll").then((u) => {
+    fetchSceneImage(`scroll_${scene.id}`, scrollPrompt(scene), "scroll", scrollFallbacks(scene.id)).then((u) => {
       if (!cancelled) setUrl(u);
     });
     return () => {
@@ -40,7 +40,15 @@ export default function EmakiPanel({ sceneId, vertical, large = false }) {
       className={`relative min-h-0 min-w-0 flex-1 overflow-hidden ${large ? "h-56 w-72 shrink-0 flex-none sm:h-64 sm:w-80" : ""}`}
     >
       {url ? (
-        <img src={url} alt="" className="h-full w-full object-cover" style={{ filter: STAGE_FILTER[stage] }} />
+        <>
+          <img src={url} alt="" className="h-full w-full object-cover" style={{ filter: `${STAGE_FILTER[stage]} sepia(0.35)` }} />
+          {/* washi grain so photos-on-scroll read as paint-on-paper */}
+          <div
+            className="pointer-events-none absolute inset-0 mix-blend-multiply opacity-60"
+            style={{ backgroundImage: "repeating-linear-gradient(0deg, rgba(120,90,50,0.10) 0 1px, transparent 1px 3px)" }}
+          />
+          <div className="pointer-events-none absolute inset-0 bg-amber-100/10 mix-blend-overlay" />
+        </>
       ) : (
         <InkFallback stage={stage} vertical={vertical} />
       )}

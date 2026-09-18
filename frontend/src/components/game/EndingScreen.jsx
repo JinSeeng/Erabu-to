@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { RotateCcw, Home } from "lucide-react";
-import { SCENES } from "@/game/storyData";
+import { SCENES, artFallbacks } from "@/game/storyData";
 import { fetchSceneImage } from "@/game/imageService";
 import { audioEngine } from "@/game/useAudio";
 import { useGameStore } from "@/game/useGameStore";
@@ -26,7 +26,7 @@ export default function EndingScreen({ ending, onRestart }) {
     audioEngine.setStage(scene.stage || "horrifying", 4);
     audioEngine.setAmbience(scene.isHidden ? "silence" : scene.tone === "spared" ? "wind" : "footsteps");
     (async () => {
-      const url = await fetchSceneImage(scene.id, scene.imagePrompt);
+      const url = await fetchSceneImage(scene.id, scene.imagePrompt, "scene", artFallbacks(scene.id));
       setImageUrl(url);
     })();
   }, [scene]);

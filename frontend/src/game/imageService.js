@@ -4,26 +4,42 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const memoryCache = new Map(); // scene_id -> dataUrl
+const failed = new Set(); // ids whose generation failed this session (don't retry)
 
-export async function fetchSceneImage(sceneId, prompt, style = "scene") {
-  if (memoryCache.has(sceneId)) return memoryCache.get(sceneId);
+async function getCached(id) {
+  if (memoryCache.has(id)) return memoryCache.get(id);
   try {
-    const cached = await axios.get(`${API}/scene/image/${sceneId}`);
+    const cached = await axios.get(`${API}/scene/image/${id}`);
     const url = toDataUrl(cached.data);
-    memoryCache.set(sceneId, url);
+    memoryCache.set(id, url);
     return url;
   } catch {
-    // not cached yet — generate
-  }
-  try {
-    const res = await axios.post(`${API}/scene/image`, { scene_id: sceneId, prompt, style });
-    const url = toDataUrl(res.data);
-    memoryCache.set(sceneId, url);
-    return url;
-  } catch (e) {
-    console.error("scene image failed", e?.response?.data || e.message);
     return null;
   }
+}
+
+// Returns art for `sceneId`; if it can't be generated (e.g. no key budget), walks the
+// `fallbacks` list (ids of already-painted scenes) so no screen is ever left blank.
+export async function fetchSceneImage(sceneId, prompt, style = "scene", fallbacks = []) {
+  const cached = await getCached(sceneId);
+  if (cached) return cached;
+
+  if (!failed.has(sceneId)) {
+    try {
+      const res = await axios.post(`${API}/scene/image`, { scene_id: sceneId, prompt, style });
+      const url = toDataUrl(res.data);
+      memoryCache.set(sceneId, url);
+      return url;
+    } catch (e) {
+      failed.add(sceneId);
+      console.warn("scene image unavailable", sceneId, e?.response?.data?.detail || e.message);
+    }
+  }
+  for (const id of fallbacks) {
+    const url = await getCached(id);
+    if (url) return url;
+  }
+  return null;
 }
 
 function toDataUrl(payload) {

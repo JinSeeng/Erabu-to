@@ -43,7 +43,7 @@ authentically to their legends.
   - Kuchisake-onna now rare: runCount ≥ 1, shrine endings found, not last run, 25% roll (`kuchisakeLastRun` in store)
 
 ## Known blockers
-- Emergent LLM key budget exceeded → scene art + emaki panels fail to generate (17/27 scenes cached; 0 scroll panels cached). User must top up Universal Key balance. Pre-generation of missing art deferred by user.
+- Emergent LLM key budget exceeded and user cannot top up for now. Mitigation (2026-06): `imageService.fetchSceneImage` accepts fallback ids; `storyData.ART_KIN` maps each of the 11 unpainted scenes to its nearest painted kin; emaki panels fall back to the scene's own painting (+ sepia/washi treatment). Result: every screen shows real sumi-e art. Once budget is available run `node frontend/scripts/pregenerate.mjs` (backend `POST /api/scene/pregenerate`, `GET /api/scene/pregenerate/status`) to paint the 39 missing images — fallbacks are then replaced automatically.
 
 ## Backlog
 - **P2** Environmental micro-changes on revisit

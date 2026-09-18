@@ -599,3 +599,28 @@ export function allImageJobs() {
     ...scenes.map((s) => ({ scene_id: `scroll_${s.id}`, prompt: scrollPrompt(s), style: "scroll" })),
   ];
 }
+
+// Nearest already-painted scene, used when a scene's own art cannot be generated.
+const ART_KIN = {
+  ending_walled_in: "paddies_wall",
+  ending_licked_clean: "farmhouse",
+  abandoned_shrine: "shrine_torii",
+  ending_brides_call: "ending_binding_bride",
+  ending_hakumei: "twilight_home",
+  ending_water_sleep: "kappa_pact",
+  ending_paper_crane: "silk_hut",
+  zashiki_warashi: "silent_grove",
+  ending_village_haunted: "village_return",
+  ending_kuchisake_yes: "kuchisake_encounter",
+  ending_kuchisake_no: "kuchisake_encounter",
+};
+
+export function artFallbacks(sceneId) {
+  const kin = ART_KIN[sceneId];
+  return kin ? [kin, ...artFallbacks(kin)] : [];
+}
+
+// Scroll panel fallbacks: the scene's own painting, then its kin.
+export function scrollFallbacks(sceneId) {
+  return [sceneId, ...artFallbacks(sceneId)];
+}
