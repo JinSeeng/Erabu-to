@@ -39,10 +39,10 @@ export default function EmakiScroll({ orientation = "horizontal", stage }) {
       >
         <div
           className={`flex items-center justify-between font-serif-jp text-[10px] tracking-[0.3em] text-amber-100/60 ${
-            vertical ? "tategaki mb-1 h-24 flex-col gap-2" : "mb-1 w-full"
+            vertical ? "mb-2 flex-col gap-1" : "mb-1 w-full"
           }`}
         >
-          <span>絵巻 {vertical ? "" : "· Emaki"}</span>
+          <span>{vertical ? "絵巻" : "絵巻 · Emaki"}</span>
           <span className="text-red-300/80">{STAGE_LABEL[stage]}</span>
         </div>
         <button
@@ -105,7 +105,7 @@ export default function EmakiScroll({ orientation = "horizontal", stage }) {
               {ids.map((id) => (
                 <EmakiPanel key={id} sceneId={id} large />
               ))}
-              <div className="flex w-40 shrink-0 items-center justify-center font-serif-jp text-xs italic tracking-widest text-stone-500">
+              <div className="flex min-w-[10rem] flex-1 items-center justify-center font-serif-jp text-xs italic tracking-widest text-stone-500">
                 the paper waits…
               </div>
               <div className="w-4 shrink-0 rounded-sm bg-gradient-to-b from-amber-900 via-amber-950 to-amber-800" />

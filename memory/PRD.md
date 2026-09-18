@@ -32,18 +32,18 @@ authentically to their legends.
 
 ## What's been implemented
 - 2026-02: Vertical slice — main road / mountain branches, 5 endings, Gemini art, emaki scroll, drone audio, journal, persistence
-- 2026-03: Act 2 village_return (reroute on run ≥ 2), Kuchisake-onna (main road taken twice), journal portraits
-- 2026-06 (this session, tested 7/7 via testing agent):
-  - Fixed compile errors left by previous session (storyData object structure, duplicate imports)
-  - Ending Tree map on title (`EndingTree.jsx`) replacing flat gallery
-  - Zashiki-warashi encounter → persistent `paper_crane` gift (survives resets) → alt ending in silk hut; gift badge in toolbar
-  - Third path: rice paddies → Nurikabe → farmhouse (Tenjō-name) → 3 endings
-  - Scene-specific ambience layer in audio engine
-  - Hidden Truth ending (貴方は誰) unlocked at 14/14 endings + 9/9 yokai, triggered from title tree
-  - Title changed to 選ぶと、 with English subtitle
+- 2026-03: Act 2 village_return (reroute on run ≥ 2), Kuchisake-onna, journal portraits
+- 2026-06 round 1 (tested 7/7): build fixes, Ending Tree, Zashiki gift, third path, per-scene ambience, Hidden Truth, title change
+- 2026-06 round 2 (tested 11/11, `/app/test_reports/iteration_2.json`):
+  - Title: only 選ぶと、 + "if you choose…" (romaji + seal removed)
+  - Ending Gallery (red hanko seals) restored on title; Hidden Truth button lives there
+  - Journal opens from title; two tabs: Lore / Threads (Ending Tree, English labels) — `Journal.jsx`, `EndingTree.jsx`
+  - Game layout: compact story panel, choice grid adapts to 1/2/3 options, hide-UI eye toggle
+  - Emaki rebuilt (`EmakiScroll.jsx`, `EmakiPanel.jsx`): one AI-generated emakimono panel per visited scene (`scroll_<sceneId>` cached, backend `style: "scroll"` prompt), palette darkens per stage and brightens for "spared" endings; vertical on ≥lg, horizontal below; click to unroll full overlay; shown on ending screen. SVG ink fallback when art unavailable.
+  - Kuchisake-onna now rare: runCount ≥ 1, shrine endings found, not last run, 25% roll (`kuchisakeLastRun` in store)
 
 ## Known blockers
-- Emergent LLM key budget exceeded → new scene art fails to generate (17/27 scenes cached in Mongo). User must top up Universal Key balance.
+- Emergent LLM key budget exceeded → scene art + emaki panels fail to generate (17/27 scenes cached; 0 scroll panels cached). User must top up Universal Key balance. Pre-generation of missing art deferred by user.
 
 ## Backlog
 - **P2** Environmental micro-changes on revisit

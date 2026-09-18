@@ -1,0 +1,26 @@
+{
+  "summary": "Frontend-only re-verification for iteration-2 changes of 選ぶと、 (Erabu to...). All 11 review scenarios verified via Playwright with localStorage seeding: title text (kanji '選ぶと、' + English subtitle, no 'Erabu to', no 印 seal); ending gallery on title (14 seals, 2/14 unlocked, hover hint, no ending-tree on title); Journal from title with Lore + Threads tabs and EndingTree showing English labels + progress '2/14 endings · 2/9 yokai'; 1920x800 gameplay choice grid with correct data-count (start=3, mountain_bridge=3, kappa_pact=2) and story-panel < 45% viewport height; mobile 390x844 shows horizontal emaki only, no overflow, choices stack 1-col; hide-ui-btn ↔ show-ui-btn toggle works; Emaki scroll displays one panel per visited scene, overlay opens with kanji-captioned large panels and closes via close-btn; emaki-scroll-horizontal is present on ending screen; Kuchisake rarity rules confirmed statistically (0/5 runCount=0, 0/5 missing shrine ending, 9/30 ≈30% when all conditions met, 0/10 when kuchisakeLastRun propagates via natural reset); hidden-truth gating + 貴方は誰 revelation; Zashiki gift flow (choice-laughter → accept → paper_crane badge, laughter no longer visible at bridge).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Scene image generation", "issue": "GET /api/scene/image returns 404 for /image/<scene> and 502 Bad Gateway on generation calls throughout gameplay. Non-blocking per review note (LLM budget), listed for awareness.", "affected_selectors": ["scene-canvas"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "useGameStore.reset() overwrites kuchisakeLastRun with sawKuchisakeThisRun on every start-from-title. This means direct seed of kuchisakeLastRun=true (with sawKuchisake=false) is cleared before the choice fires — the natural pathway is to end a run with sawKuchisake=true so reset propagates lastRun=true. Behavior is correct per intent but the direct seed described in the review does NOT survive the reset; retested by seeding sawKuchisakeThisRun=true which naturally produces kuchisakeLastRun=true after reset and confirms she never appears (0/10). Consider documenting this contract or making reset preserve an explicit kuchisakeLastRun override for testing.",
+    "In statistical rarity test, kuchisake appeared 9/30 (30%) — within tolerance of the specified 25% probability (binomial 95% CI covers 25%). Statistically fine.",
+    "EmakiScroll overlay uses AnimatePresence exit; DOM node persists briefly (~500-800ms) after emaki-close-btn click. Tests need ~2s wait or is_visible() check rather than count()==0. Not a bug, just testing note."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "N/A (skipped)", "frontend": "100% (11/11 scenarios)"},
+  "test_credentials": "None required (localStorage only).",
+  "seed_data_creation": "localStorage 'inga.save.v1' seeded for: (a) 2/14 unlocked endings + 2 journal entries for gallery/journal test, (b) mid-game state at kappa_pact for emaki panel count, (c) ending state (ending_hakumei) for ending-screen emaki, (d) fresh runCount=0 seed for kuchisake test 8a, (e) runCount=3 with partial shrine unlocks for 8b, (f) runCount=3 full shrine unlocks for 8c (30 iterations), (g) ending state with sawKuchisake=true for 8d natural reset path, (h) full 14 endings + 9 yokai for hidden truth (T9), (i) fresh seed for gift flow (T10).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All iteration-2 review scenarios verified. When testing kuchisakeLastRun behavior, note that reset() derives kuchisakeLastRun from sawKuchisakeThisRun — seed sawKuchisakeThisRun=true (and ending!=null so isMidRun=false triggers reset) to naturally set kuchisakeLastRun=true post-start. Framer-motion Journal and Emaki overlays keep DOM briefly after close; wait ~1-2s or use is_visible(). skip-narration is required before choices appear.",
+  "rca of the issue": "N/A — no functional issues found. Only note: reset() semantics as described above."
+}
