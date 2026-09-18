@@ -1,4 +1,4 @@
-# PRD — 因果 (Inga) / 選ぶと、 (Erabu to...)
+# PRD — 選ぶと、 (Erabu to...) / formerly 因果 (Inga)
 
 ## Original problem statement
 An interactive first-person horror experience inspired by traditional Japanese
@@ -6,64 +6,47 @@ folklore and yokai legends. The player travels a peaceful Japanese landscape
 that gradually reveals a supernatural reality beneath it. Choices branch the
 journey. A traditional emaki scroll visually records narrative progression from
 peaceful → horrifying. A journal collects folklore. Yokai are placed
-authentically to their legends (Kappa near water, ghost bride at abandoned
-shrine, Jorogumo in a lonely silk-webbed hut).
+authentically to their legends.
 
 ## Architecture
 - **Backend** (FastAPI, `/app/backend/server.py`):
-  - `POST /api/scene/image` — Gemini Nano Banana (gemini-3.1-flash-image-preview)
-    generation of sumi-e horror art, cached in MongoDB `scene_images` by scene_id
-  - `GET /api/scene/image/{scene_id}` — cached lookup
-  - `POST /api/telemetry` — anonymous ending/path metrics
+  - `POST /api/scene/image` — Gemini Nano Banana sumi-e art, cached in Mongo `scene_images`
+  - `GET /api/scene/image/{scene_id}` — cache lookup (404 = not yet generated)
+  - `POST /api/telemetry`
 - **Frontend** (React, `/app/frontend/src`):
-  - `App.js` — screen switch (title/game/ending), audio init on first pointerdown
-  - `game/storyData.js` — story graph (11 nodes, 5 endings)
-  - `game/useGameStore.js` — localStorage-backed state, useSyncExternalStore
-  - `game/useAudio.js` — Web Audio procedural drone/wind/tremolo engine keyed to stage
-  - `game/imageService.js` — fetch + memory-cache generated art
-  - `components/game/TitleScreen.jsx` — kanji cover, hanko seal, mute, hard reset
-  - `components/game/GameView.jsx` — layered scene view, narration reveal, choices
-  - `components/game/SceneCanvas.jsx` — image + fog layers + stage color grading
-  - `components/game/EmakiScroll.jsx` — unrolling horizontal scroll SVG artwork,
-     figure disappears at "unsettling", ink spatter at "horrifying"
-  - `components/game/Journal.jsx` — washi notebook modal, hanko-stamped entries
-  - `components/game/ChoiceButton.jsx` — kanji stamp + text
-  - `components/game/EndingScreen.jsx` — kanji seal ending, restart
-
-## User persona
-Player of atmospheric narrative horror (Silent Hill / Ju-on / walking-sim
-audience) drawn to Japanese folklore and slow-burn dread over jump scares.
+  - `game/storyData.js` — SCENES graph (26 scenes, 14 endings) + HIDDEN_TRUTH, ALL_ENDINGS, ALL_YOKAI_JOURNAL_IDS
+  - `game/useGameStore.js` — localStorage (`inga.save.v1`) store; cross-run reroutes (kuchisake, village_return), gifts, hidden-truth gating
+  - `game/useAudio.js` — procedural drone per stage + per-scene ambience (cicadas/water/footsteps/wind/hearth/bell/silence) via SCENE_AMBIENCE
+  - `components/game/TitleScreen.jsx` — title 選ぶと、/ "Erabu to… — if you choose…", EndingTree
+  - `components/game/EndingTree.jsx` — branching tree map of all routes/endings + Hidden Truth button
+  - `components/game/GameView.jsx`, `SceneCanvas`, `EmakiScroll`, `Journal`, `ChoiceButton` (gift-gated choices), `EndingScreen`
 
 ## Core requirements (static)
-1. Beauty first, wrongness gradual — restrained sumi-e aesthetic
+1. Beauty first, wrongness gradual — sumi-e aesthetic
 2. Choices matter — branches lead to distinct endings
 3. Scroll = narrative progression, NOT health
-4. Yokai placed authentically to their folklore
-5. Journal fills only with what player has actually seen
-6. Procedural audio, no external audio assets
+4. Yokai placed authentically to folklore
+5. Journal fills only with what the player has seen
+6. Procedural audio, no external assets
 7. localStorage persistence, no accounts
 
-## What's been implemented (2026-02)
-- Full vertical slice: 6 scenes + 5 endings across 2 branches
-  - Main road → Torii shrine → Ghost Bride ending (Hanako) or Twilight Home
-  - Mountain → Kappa bridge → River Gratitude or Underwater Sleep
-  - Mountain → Silk Hut → Jorogumo Binding
-- Gemini Nano Banana AI-generated sumi-e art per scene, cached in MongoDB
-- Emaki scroll with 5 stages: 静か → 違和 → 不穏 → 歪み → 怪 with progressive
-  visual degradation (figure vanishes, ink spatter appears)
-- Procedural Web Audio drone that shifts frequency/dissonance per stage
-- Journal (手帖) that records folkloric entries (Hitogata, Kappa, Hanako, Jorogumo)
-- Multi-run persistence: journal + seen scenes survive resets
-- Fully working end-to-end (verified via screenshots on preview URL)
+## What's been implemented
+- 2026-02: Vertical slice — main road / mountain branches, 5 endings, Gemini art, emaki scroll, drone audio, journal, persistence
+- 2026-03: Act 2 village_return (reroute on run ≥ 2), Kuchisake-onna (main road taken twice), journal portraits
+- 2026-06 (this session, tested 7/7 via testing agent):
+  - Fixed compile errors left by previous session (storyData object structure, duplicate imports)
+  - Ending Tree map on title (`EndingTree.jsx`) replacing flat gallery
+  - Zashiki-warashi encounter → persistent `paper_crane` gift (survives resets) → alt ending in silk hut; gift badge in toolbar
+  - Third path: rice paddies → Nurikabe → farmhouse (Tenjō-name) → 3 endings
+  - Scene-specific ambience layer in audio engine
+  - Hidden Truth ending (貴方は誰) unlocked at 14/14 endings + 9/9 yokai, triggered from title tree
+  - Title changed to 選ぶと、 with English subtitle
+
+## Known blockers
+- Emergent LLM key budget exceeded → new scene art fails to generate (17/27 scenes cached in Mongo). User must top up Universal Key balance.
 
 ## Backlog
-- **P1** Extend story: additional yokai (Kuchisake-onna, Zashiki-warashi, Tenjo-name)
-- **P1** Second act — village returning to reveal what changed
-- **P2** Achievement/ending gallery on title screen
-- **P2** Journal sketches (generated sumi-e portraits of each yokai)
-- **P2** Environmental micro-changes on revisit (moved objects, new distant figures)
-- **P2** Vertical writing mode (tategaki) narrative option for full-screen ending texts
-- **P3** Custom scroll art generation per player's exact choice path
-
-## Next tasks
-See "Next Action Items" in the finish summary.
+- **P2** Environmental micro-changes on revisit
+- **P2** Vertical writing (tategaki) ending texts
+- **P3** Custom scroll art per player path
+- **P3** Split storyData.js by branch if it grows further
